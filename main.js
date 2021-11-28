@@ -1,4 +1,6 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.134.0';
+import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/loaders/GLTFLoader.js';
+import {RoughnessMipmapper} from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/utils/RoughnessMipmapper.js';
 
 const canvas = document.querySelector('canvas.webgl')
 
@@ -44,7 +46,7 @@ camera.updateProjectionMatrix();
 
 const zoom = 2;
 
-const chickenSize = 15;
+// const chickenSize = 15;
 
 const positionWidth = 42;
 const columns = 17;
@@ -69,8 +71,61 @@ const addLane = () => {
     lanes.push(lane);
 }
 
-const chicken = new Chicken();
-scene.add( chicken );
+const renderer = new THREE.WebGLRenderer({
+    alpha: true,
+    antialias: true,
+    canvas: canvas
+});
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.setSize( sizes.width, sizes.height );
+
+const roughnessMipmapper = new RoughnessMipmapper( renderer );
+
+// const chicken = new Chicken();
+// scene.add( chicken );
+let chicken;
+const loader = new GLTFLoader();
+loader.load( './Asset/chicken/Chicken.gltf', 
+  function ( gltf ) {
+          // const obj = gltf.scene;
+          chicken = gltf.scene;
+          // console.log(chicken);
+          chicken.traverse( function ( child ) {
+
+                  if ( child.isMesh ) {
+
+                          roughnessMipmapper.generateMipmaps( child.material );
+                          child.castShadow = true;
+                          child.receiveShadow = true;
+                  }
+
+          } );
+          chicken.rotation.x = 100*Math.PI/180;
+          chicken.rotation.y = 185*Math.PI/180;
+          chicken.rotation.z = 0*Math.PI/180;
+        //   chicken.rotation.x = 60*Math.PI/180;
+        //   chicken.rotation.y = -80*Math.PI/180;
+        //   chicken.rotation.z = -40*Math.PI/180;
+          chicken.scale.multiplyScalar(60);
+          console.log(chicken);
+          scene.add(chicken);
+          dirLight.target = chicken;
+          initValues();
+          requestAnimationFrame(animate);
+  },
+
+  function ( xhr ) {
+    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+  },
+
+  // called when loading has errors
+  function ( error ) {
+
+    console.log( 'An error happened' );
+
+  }
+);
 
 const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
 scene.add(hemiLight)
@@ -80,7 +135,7 @@ const initialDirLightPositionY = -100;
 const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
 dirLight.position.set(initialDirLightPositionX, initialDirLightPositionY, 200);
 dirLight.castShadow = true;
-dirLight.target = chicken;
+// dirLight.target = chicken;
 scene.add(dirLight);
 
 dirLight.shadow.mapSize.width = 2048;
@@ -116,32 +171,6 @@ const initValues = () => {
 
     dirLight.position.x = initialDirLightPositionX;
     dirLight.position.y = initialDirLightPositionY;
-}
-  
-initValues();
-
-const renderer = new THREE.WebGLRenderer({
-    alpha: true,
-    antialias: true,
-    canvas: canvas
-});
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.setSize( sizes.width, sizes.height );
-
-function Chicken() {
-    const chicken = new THREE.Group();
-
-    const body = new THREE.Mesh(
-        new THREE.BoxBufferGeometry( chickenSize*zoom, chickenSize*zoom, 20*zoom ), 
-        new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } )
-    );
-    body.position.z = 10*zoom;
-    body.castShadow = true;
-    body.receiveShadow = true;
-    chicken.add(body);
-
-    return chicken;  
 }
 
 function Road() {
@@ -213,7 +242,7 @@ function animate() {
     renderer.render( scene, camera );	
 }
   
-requestAnimationFrame( animate );
+// requestAnimationFrame( animate );
 
 function onKeyDown(e){
     if(e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40){
@@ -226,6 +255,9 @@ function onKeyDown(e){
                 camera.position.x = initialCameraPositionX + positionX;     
                 dirLight.position.x = initialDirLightPositionX + positionX; 
                 chicken.position.x = positionX; // initial chicken position is 0
+                chicken.rotation.x = 100*Math.PI/180;
+                chicken.rotation.y = 10*Math.PI/180;
+                chicken.rotation.z = 0*Math.PI/180;
                 
                 currentColumn--;
                 break;
@@ -236,7 +268,9 @@ function onKeyDown(e){
                 camera.position.y = initialCameraPositionY + positionY; 
                 dirLight.position.y = initialDirLightPositionY + positionY; 
                 chicken.position.y = positionY; // initial chicken position is 0
-                
+                chicken.rotation.x = 60*Math.PI/180;
+                chicken.rotation.y = -85*Math.PI/180;
+                chicken.rotation.z = -40*Math.PI/180;
                 currentLane++;
                 addLane();
                 break;
@@ -249,7 +283,9 @@ function onKeyDown(e){
                 camera.position.x = initialCameraPositionX + positionX;       
                 dirLight.position.x = initialDirLightPositionX + positionX;
                 chicken.position.x = positionX; 
-                
+                chicken.rotation.x = 100*Math.PI/180;
+                chicken.rotation.y = 185*Math.PI/180;
+                chicken.rotation.z = 0*Math.PI/180;
                 currentColumn++;
                 break;
             }
@@ -261,7 +297,9 @@ function onKeyDown(e){
                 camera.position.y = initialCameraPositionY + positionY;
                 dirLight.position.y = initialDirLightPositionY + positionY; 
                 chicken.position.y = positionY;
-                
+                chicken.rotation.x = 100*Math.PI/180;
+                chicken.rotation.y = 80*Math.PI/180;
+                chicken.rotation.z = -10*Math.PI/180;
                 currentLane--;
                 break;
             }
