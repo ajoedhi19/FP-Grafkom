@@ -55,6 +55,7 @@ const boardWidth = positionWidth*columns;
 let lanes;
 let currentLane;
 let currentColumn;
+let previousTimestamp;
 
 const generateLanes = () => [-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9].map((index) => {
     const lane = new Lane(index);
@@ -84,48 +85,84 @@ const roughnessMipmapper = new RoughnessMipmapper( renderer );
 
 // const chicken = new Chicken();
 // scene.add( chicken );
-let chicken;
+
+const objects = ['./Asset/chicken/Chicken.gltf', './Asset/cow/scene.gltf', './Asset/goat/scene.gltf', './Asset/pig/scene.gltf', './Asset/fence/scene.gltf', './Asset/tree/scene.gltf'];
+let loaded_models = [];
+let num_of_objects = objects.length;
+let obj_loaded = 0;
+
+let chicken, cow, goat, pig, fence, tree;
 const loader = new GLTFLoader();
-loader.load( './Asset/chicken/Chicken.gltf', 
-  function ( gltf ) {
-          // const obj = gltf.scene;
-          chicken = gltf.scene;
-          // console.log(chicken);
-          chicken.traverse( function ( child ) {
+for(let i = 0; i < objects.length; i++)
+{
 
-                  if ( child.isMesh ) {
+    loader.load( objects[i], 
+      function ( gltf ) {
+              // const obj = gltf.scene;
+              const obj = gltf.scene;
+              // console.log(obj);
+              obj.traverse( function ( child ) {
+    
+                      if ( child.isMesh ) {
+    
+                              roughnessMipmapper.generateMipmaps( child.material );
+                              child.castShadow = true;
+                              child.receiveShadow = true;
+                      }
+    
+              } );
+              switch (i) {
+                    case 0:
+                        chicken = obj;
+                        loaded_models[0] = chicken;
+                        break;
+                    case 1:
+                        cow = obj;
+                        loaded_models[1] = cow;
+                        break;
+                    case 2:
+                        goat = obj;
+                        loaded_models[2] = obj;
+                        break;
+                    case 3:
+                        pig = obj;
+                        loaded_models[3] = obj;
+                        break;
+                    case 4:
+                        fence = obj;
+                        loaded_models[4] = obj;
+                        break;
+                    case 5:
+                        tree = obj;
+                        loaded_models[5] = obj;
+                        break;
+                
+              }
+              checkComplete();
+      },
+    
+      function ( xhr ) {
+        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+      },
+    
+      // called when loading has errors
+      function ( error ) {
+    
+        console.log( 'An error happened' );
+    
+      }
+    );
+}
 
-                          roughnessMipmapper.generateMipmaps( child.material );
-                          child.castShadow = true;
-                          child.receiveShadow = true;
-                  }
-
-          } );
-          chicken.rotation.x = 100*Math.PI/180;
-          chicken.rotation.y = 185*Math.PI/180;
-          chicken.rotation.z = 0*Math.PI/180;
-        //   chicken.rotation.x = 60*Math.PI/180;
-        //   chicken.rotation.y = -80*Math.PI/180;
-        //   chicken.rotation.z = -40*Math.PI/180;
-          chicken.scale.multiplyScalar(60);
-          console.log(chicken);
-          scene.add(chicken);
-          dirLight.target = chicken;
-          initValues();
-          requestAnimationFrame(animate);
-  },
-
-  function ( xhr ) {
-    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-  },
-
-  // called when loading has errors
-  function ( error ) {
-
-    console.log( 'An error happened' );
-
-  }
-);
+function checkComplete(){
+    obj_loaded++;
+    if(obj_loaded === num_of_objects) 
+    {
+        // chicken = cow;
+        initValues();
+        requestAnimationFrame(animate);
+    }
+}
 
 const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
 scene.add(hemiLight)
@@ -155,20 +192,36 @@ backLight.position.set(200, 200, 50);
 backLight.castShadow = true;
 scene.add(backLight)
 
-const laneTypes = ['grass', 'road'];
+const laneTypes = ['cow', 'goat', 'tree','fence'];
+const laneSpeeds = [2, 2.5, 3];
 
 const initValues = () => {
     lanes = generateLanes()
+    // chicken = fence;
 
+    previousTimestamp = null;
+    chicken.rotation.x = 60*Math.PI/180;
+    chicken.rotation.y = -85*Math.PI/180;
+    chicken.rotation.z = -40*Math.PI/180;
+    // chicken.rotation.x = 95*Math.PI/180;
+    // chicken.rotation.y = 3*Math.PI/180;
+    // chicken.rotation.z = -5*Math.PI/180;
+    chicken.scale.multiplyScalar(60);
+    // chicken.scale.multiplyScalar(1/10);
     chicken.position.x = 0;
     chicken.position.y = 0;
-
+    // chicken.position.x -= 10;
+    // chicken.position.z += 22.5;
+    console.log("player", chicken);
+    scene.add(chicken);
+    
     currentLane = 0;
     currentColumn = Math.floor(columns/2);
-
+    
     camera.position.y = initialCameraPositionY;
     camera.position.x = initialCameraPositionX;
-
+    
+    dirLight.target = chicken;
     dirLight.position.x = initialDirLightPositionX;
     dirLight.position.y = initialDirLightPositionY;
 }
@@ -219,7 +272,7 @@ function Grass() {
     grass.position.z = 1.5*zoom;
     return grass;
 }
-  
+
 function Lane(index) {
     this.index = index;
     this.type = index <= 0 ? 'grass' : laneTypes[Math.floor(Math.random()*laneTypes.length)];
@@ -234,11 +287,144 @@ function Lane(index) {
             this.mesh = new Road();
             break;
         }
+        case 'cow' : {
+            this.mesh = new Road();
+            this.direction = Math.random() >= 0.5;
+      
+            const occupiedPositions = new Set();
+            this.animals = [1,2,3].map(() => {
+              const animal = cow.clone();
+              console.log("cow", cow);
+              animal.rotation.x = 60*Math.PI/180;
+              animal.rotation.y = -85*Math.PI/180;
+              animal.rotation.z = -40*Math.PI/180;
+              animal.scale.multiplyScalar(60);
+              let position;
+              do {
+                position = Math.floor(Math.random()*columns/2);
+              }while(occupiedPositions.has(position))
+                occupiedPositions.add(position);
+              animal.position.x = (position*positionWidth*2+positionWidth/2)*zoom-boardWidth*zoom/2;
+              if(this.direction){
+                  animal.rotation.x = 50*Math.PI/180;
+                  animal.rotation.y = 95*Math.PI/180;
+                  animal.rotation.z = 50*Math.PI/180;
+              }
+
+              animal.position.z = 40;
+              scene.add(animal);
+              this.mesh.add( animal );
+              return animal;
+            })
+      
+            this.speed = laneSpeeds[Math.floor(Math.random()*laneSpeeds.length)];
+            break;
+        }
+        case 'goat' : {
+            this.mesh = new Road();
+            this.direction = Math.random() >= 0.5;
+      
+            const occupiedPositions = new Set();
+            this.animals = [1,2,3].map(() => {
+              const animal = goat.clone();
+              animal.rotation.x = 50*Math.PI/180;
+              animal.rotation.y = 95*Math.PI/180;
+              animal.rotation.z = 50*Math.PI/180;
+              animal.scale.multiplyScalar(1/(1.5));
+              let position;
+              do {
+                  position = Math.floor(Math.random()*columns/2);
+                }while(occupiedPositions.has(position))
+                occupiedPositions.add(position);
+                animal.position.x = (position*positionWidth*2+positionWidth/2)*zoom-boardWidth*zoom/2;
+                if(this.direction){
+                  animal.rotation.x = 60*Math.PI/180;
+                  animal.rotation.y = -85*Math.PI/180;
+                  animal.rotation.z = -40*Math.PI/180;
+                //   animal.rotation.x = 50*Math.PI/180;
+                //   animal.rotation.y = 95*Math.PI/180;
+                //   animal.rotation.z = 50*Math.PI/180;
+              }
+
+              animal.position.z = 0;
+              scene.add(animal);
+              this.mesh.add( animal );
+              return animal;
+            })
+      
+            this.speed = laneSpeeds[Math.floor(Math.random()*laneSpeeds.length)];
+            break;
+        }
+        case 'tree': {
+            this.mesh = new Grass();
+      
+            this.occupiedPositions = new Set();
+            this.trees = [1,2,3,4].map(() => {
+                const trees = tree.clone();
+                trees.rotation.x = 60*Math.PI/180;
+                trees.rotation.y = -85*Math.PI/180;
+                trees.rotation.z = -40*Math.PI/180;
+                trees.scale.multiplyScalar(1/2);
+                let position;
+                do {
+                    position = Math.floor(Math.random()*columns);
+                }while(this.occupiedPositions.has(position))
+                    this.occupiedPositions.add(position);
+                trees.position.x = (position*positionWidth+positionWidth/2)*zoom-boardWidth*zoom/2;
+                scene.add(trees);
+                this.mesh.add( trees );
+                return trees;
+                })
+                break;
+          }
+          case 'fence': {
+            this.mesh = new Grass();
+      
+            this.occupiedPositions = new Set();
+            this.fences = [1,2,3,4].map(() => {
+                const fences = fence.clone();
+                fences.rotation.x = 95*Math.PI/180;
+                fences.rotation.y = 5*Math.PI/180;
+                fences.rotation.z = -3*Math.PI/180;
+                fences.scale.multiplyScalar(1/10);
+                let position;
+                do {
+                    position = Math.floor(Math.random()*columns);
+                }while(this.occupiedPositions.has(position))
+                    this.occupiedPositions.add(position);
+                fences.position.x = (position*positionWidth+positionWidth/2)*zoom-boardWidth*zoom/2 - 10;
+                fences.position.y = 0;
+                // fence.position.x -= 10;
+                fences.position.z += 10;
+                scene.add(fences);
+                this.mesh.add( fences );
+                return fences;
+                })
+                break;
+          }
     }
 }
 
-function animate() {
+function animate(timestamp) {
     requestAnimationFrame( animate );
+
+    if(!previousTimestamp) previousTimestamp = timestamp;
+    const delta = timestamp - previousTimestamp;
+    previousTimestamp = timestamp;
+
+    lanes.forEach(lane => {
+        if(lane.type === 'cow' || lane.type === 'goat') {
+          const aBitBeforeTheBeginingOfLane = -boardWidth*zoom/2 - positionWidth*2*zoom;
+          const aBitAfterTheEndOFLane = boardWidth*zoom/2 + positionWidth*2*zoom;
+          lane.animals.forEach(animal => {
+            if(lane.direction) {
+              animal.position.x = animal.position.x < aBitBeforeTheBeginingOfLane ? aBitAfterTheEndOFLane : animal.position.x -= lane.speed/16*delta;
+            }else{
+              animal.position.x = animal.position.x > aBitAfterTheEndOFLane ? aBitBeforeTheBeginingOfLane : animal.position.x += lane.speed/16*delta;
+            }
+          });
+        }
+      });
     renderer.render( scene, camera );	
 }
   

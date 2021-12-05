@@ -1,0 +1,11 @@
+Model Information:
+* title:	Goat
+* source:	https://sketchfab.com/3d-models/goat-a1008ad98bdf420e80d46c29af1928c4
+* author:	sambasivarao (https://sketchfab.com/sambasivarao)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Goat" (https://sketchfab.com/3d-models/goat-a1008ad98bdf420e80d46c29af1928c4) by sambasivarao (https://sketchfab.com/sambasivarao) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

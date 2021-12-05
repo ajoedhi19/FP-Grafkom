@@ -1,0 +1,11 @@
+Model Information:
+* title:	Pig
+* source:	https://sketchfab.com/3d-models/pig-83358848ab0b4b7c8cbbe9d6b0860468
+* author:	Nicole Harris (https://sketchfab.com/16nharris)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Pig" (https://sketchfab.com/3d-models/pig-83358848ab0b4b7c8cbbe9d6b0860468) by Nicole Harris (https://sketchfab.com/16nharris) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
