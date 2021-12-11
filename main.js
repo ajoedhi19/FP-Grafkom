@@ -195,6 +195,8 @@ scene.add(backLight);
 const laneTypes = ["cow", "goat", "tree", "fence"];
 const laneSpeeds = [2, 2.5, 3];
 
+let firstTime = true;
+
 const initValues = () => {
   lanes = generateLanes();
   // chicken = fence;
@@ -206,16 +208,20 @@ const initValues = () => {
   // chicken.rotation.x = 95*Math.PI/180;
   // chicken.rotation.y = 3*Math.PI/180;
   // chicken.rotation.z = -5*Math.PI/180;
-  chicken.scale.multiplyScalar(60);
+  if(firstTime){
+      chicken.scale.multiplyScalar(60);
+      firstTime = false;
+  }
   // chicken.scale.multiplyScalar(1/10);
   chicken.position.x = 0;
   chicken.position.y = 0;
   // chicken.position.x -= 10;
   // chicken.position.z += 22.5;
-  console.log("player", chicken);
+//   console.log("player", chicken);
   scene.add(chicken);
 
   currentLane = 0;
+  counterDOM.innerHTML = currentLane;
   currentColumn = Math.floor(columns / 2);
 
   camera.position.y = initialCameraPositionY;
@@ -288,7 +294,7 @@ function Lane(index) {
       const occupiedPositions = new Set();
       this.animals = [1, 2, 3].map(() => {
         const animal = cow.clone();
-        console.log("cow", cow);
+        // console.log("cow", cow);
         animal.rotation.x = (60 * Math.PI) / 180;
         animal.rotation.y = (-85 * Math.PI) / 180;
         animal.rotation.z = (-40 * Math.PI) / 180;
@@ -364,7 +370,7 @@ function Lane(index) {
           position = Math.floor(Math.random() * columns);
         } while (this.occupiedPositions.has(position));
         this.occupiedPositions.add(position);
-        trees.position.x = (position * positionWidth + positionWidth / 2) * zoom - (boardWidth * zoom) / 2;
+        trees.position.x = (position * positionWidth + positionWidth / 2) * zoom - (boardWidth * zoom) / 2 + 90;
         scene.add(trees);
         this.mesh.add(trees);
         return trees;
@@ -386,7 +392,7 @@ function Lane(index) {
           position = Math.floor(Math.random() * columns);
         } while (this.occupiedPositions.has(position));
         this.occupiedPositions.add(position);
-        fences.position.x = (position * positionWidth + positionWidth / 2) * zoom - (boardWidth * zoom) / 2 - 10;
+        fences.position.x = (position * positionWidth + positionWidth / 2) * zoom - (boardWidth * zoom) / 2 + 160;
         fences.position.y = 0;
         // fence.position.x -= 10;
         fences.position.z += 10;
@@ -401,7 +407,7 @@ function Lane(index) {
 
 document.querySelector("#retry").addEventListener("click", () => {
   lanes.forEach((lane) => scene.remove(lane.mesh));
-  initaliseValues();
+  initValues();
   endDOM.style.visibility = "hidden";
 });
 
@@ -414,6 +420,11 @@ function onKeyDown(e) {
       // left
       case 37: {
         if (currentColumn === 0) return;
+        chicken.rotation.x = (100 * Math.PI) / 180;
+        chicken.rotation.y = (10 * Math.PI) / 180;
+        chicken.rotation.z = (0 * Math.PI) / 180;
+        const finalPositions = {lane: currentLane, column: currentColumn - 1};
+        if((lanes[finalPositions.lane].type === 'tree' || lanes[finalPositions.lane].type === 'fence') && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column-1)) return;
         const positionX = (currentColumn * positionWidth + positionWidth / 2) * zoom - (boardWidth * zoom) / 2 - moveDeltaDistance;
         camera.position.x = initialCameraPositionX + positionX;
         dirLight.position.x = initialDirLightPositionX + positionX;
@@ -427,13 +438,15 @@ function onKeyDown(e) {
       }
       // up
       case 38: {
+        chicken.rotation.x = (60 * Math.PI) / 180;
+        chicken.rotation.y = (-85 * Math.PI) / 180;
+        chicken.rotation.z = (-40 * Math.PI) / 180;
+        const finalPositions = {lane: currentLane + 1, column: currentColumn};
+        if((lanes[finalPositions.lane].type === 'tree' || lanes[finalPositions.lane].type === 'fence') && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column-1)) return;
         const positionY = currentLane * positionWidth * zoom + moveDeltaDistance;
         camera.position.y = initialCameraPositionY + positionY;
         dirLight.position.y = initialDirLightPositionY + positionY;
         chicken.position.y = positionY; // initial chicken position is 0
-        chicken.rotation.x = (60 * Math.PI) / 180;
-        chicken.rotation.y = (-85 * Math.PI) / 180;
-        chicken.rotation.z = (-40 * Math.PI) / 180;
         currentLane++;
         addLane();
         counterDOM.innerHTML = currentLane;
@@ -442,37 +455,54 @@ function onKeyDown(e) {
 
       // right
       case 39: {
+        chicken.rotation.x = (100 * Math.PI) / 180;
+        chicken.rotation.y = (185 * Math.PI) / 180;
+        chicken.rotation.z = (0 * Math.PI) / 180;
         if (currentColumn === columns - 1) break;
+        const finalPositions = {lane: currentLane, column: currentColumn + 1};
+        if((lanes[finalPositions.lane].type === 'tree' || lanes[finalPositions.lane].type === 'fence') && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column-1)) return;
         const positionX = (currentColumn * positionWidth + positionWidth / 2) * zoom - (boardWidth * zoom) / 2 + moveDeltaDistance;
         camera.position.x = initialCameraPositionX + positionX;
         dirLight.position.x = initialDirLightPositionX + positionX;
         chicken.position.x = positionX;
-        chicken.rotation.x = (100 * Math.PI) / 180;
-        chicken.rotation.y = (185 * Math.PI) / 180;
-        chicken.rotation.z = (0 * Math.PI) / 180;
         currentColumn++;
         break;
       }
 
       // down
       case 40: {
+        chicken.rotation.x = (100 * Math.PI) / 180;
+        chicken.rotation.y = (80 * Math.PI) / 180;
+        chicken.rotation.z = (-10 * Math.PI) / 180;
         if (currentLane === 0) break;
+        const finalPositions = {lane: currentLane - 1, column: currentColumn};
+        if((lanes[finalPositions.lane].type === 'tree' || lanes[finalPositions.lane].type === 'fence') && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column-1)) return;
         const positionY = currentLane * positionWidth * zoom - moveDeltaDistance;
         camera.position.y = initialCameraPositionY + positionY;
         dirLight.position.y = initialDirLightPositionY + positionY;
         chicken.position.y = positionY;
-        chicken.rotation.x = (100 * Math.PI) / 180;
-        chicken.rotation.y = (80 * Math.PI) / 180;
-        chicken.rotation.z = (-10 * Math.PI) / 180;
         currentLane--;
+        counterDOM.innerHTML = currentLane;
         break;
       }
     }
-    moves.push(direction);
+    // moves.push(direction);
   }
 }
 
 window.addEventListener("keydown", onKeyDown, false);
+
+// Collision
+function isCollide(box1, box2){
+    if(box1 && box2){
+        var bbox1 = new THREE.Box3().setFromObject(box1);
+        var bbox2 = new THREE.Box3().setFromObject(box2);
+        return bbox1.intersectsBox(bbox2);
+    }
+
+    return false;
+}
+
 
 function animate(timestamp) {
   requestAnimationFrame(animate);
@@ -501,17 +531,15 @@ function animate(timestamp) {
   }
 
   if (lanes[currentLane].type === "cow" || lanes[currentLane].type === "goat") {
-    const chickenMinX = chicken.position.x - (chickenSize * zoom) / 2;
-    const chickenMaxX = chicken.position.x + (chickenSize * zoom) / 2;
-    const animalLength = { goat: 60, cow: 105 }[lanes[currentLane].type];
+
     lanes[currentLane].animals.forEach((animal) => {
-      const cowMinX = animal.position.x - (animalLength * zoom) / 2;
-      const cowMaxX = animal.position.x + (animalLength * zoom) / 2;
-      if (chickenMaxX > cowMinX && chickenMinX < cowMaxX) {
-        endDOM.style.visibility = "visible";
-      } else if (chickenMaxX > goatMinX && chickenMinX < goatMaxX) {
-        endDOM.style.visibility = "visible";
-      }
+        animal.updateMatrix();
+        animal.updateMatrixWorld(true);
+
+        if (isCollide(chicken, animal)) {
+            console.log("true");
+            endDOM.style.visibility = "visible";
+        }
     });
   }
 
