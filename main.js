@@ -5,7 +5,7 @@ import { RoughnessMipmapper } from "https://cdn.skypack.dev/three@0.134.0/exampl
 const canvas = document.querySelector("canvas.webgl");
 const counterDOM = document.getElementById("counter");
 const endDOM = document.getElementById("end");
-
+const score = document.getElementById("score")
 const scene = new THREE.Scene();
 
 /**
@@ -61,6 +61,7 @@ let previousTimestamp;
 let startMoving = false;
 let moves = [];
 let stepStartTimestamp;
+// const stepTime = 200;
 
 const generateLanes = () =>
   [-9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -409,13 +410,16 @@ document.querySelector("#retry").addEventListener("click", () => {
   lanes.forEach((lane) => scene.remove(lane.mesh));
   initValues();
   endDOM.style.visibility = "hidden";
+  score.style.visibility = "hidden";
 });
 
 // requestAnimationFrame( animate );
 
 function onKeyDown(e) {
   if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40) {
+    
     const moveDeltaDistance = positionWidth * zoom;
+    
     switch (e.keyCode) {
       // left
       case 37: {
@@ -423,9 +427,11 @@ function onKeyDown(e) {
         chicken.rotation.x = (100 * Math.PI) / 180;
         chicken.rotation.y = (10 * Math.PI) / 180;
         chicken.rotation.z = (0 * Math.PI) / 180;
+
         const finalPositions = {lane: currentLane, column: currentColumn - 1};
         if((lanes[finalPositions.lane].type === 'tree' || lanes[finalPositions.lane].type === 'fence') && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column-1)) return;
         const positionX = (currentColumn * positionWidth + positionWidth / 2) * zoom - (boardWidth * zoom) / 2 - moveDeltaDistance;
+
         camera.position.x = initialCameraPositionX + positionX;
         dirLight.position.x = initialDirLightPositionX + positionX;
         chicken.position.x = positionX; // initial chicken position is 0
@@ -447,6 +453,7 @@ function onKeyDown(e) {
         camera.position.y = initialCameraPositionY + positionY;
         dirLight.position.y = initialDirLightPositionY + positionY;
         chicken.position.y = positionY; // initial chicken position is 0
+
         currentLane++;
         addLane();
         counterDOM.innerHTML = currentLane;
@@ -465,6 +472,7 @@ function onKeyDown(e) {
         camera.position.x = initialCameraPositionX + positionX;
         dirLight.position.x = initialDirLightPositionX + positionX;
         chicken.position.x = positionX;
+        
         currentColumn++;
         break;
       }
@@ -481,12 +489,13 @@ function onKeyDown(e) {
         camera.position.y = initialCameraPositionY + positionY;
         dirLight.position.y = initialDirLightPositionY + positionY;
         chicken.position.y = positionY;
+        // chicken.position.z = jumpDeltaDistance;
         currentLane--;
         counterDOM.innerHTML = currentLane;
         break;
       }
     }
-    // moves.push(direction);
+    score.innerHTML ="your score : " + currentLane;
   }
 }
 
@@ -529,7 +538,8 @@ function animate(timestamp) {
     stepStartTimestamp = timestamp;
     startMoving = false;
   }
-
+  // const moveDeltaTime = timestamp - stepStartTimestamp;
+  // const jumpDeltaDistance = Math.sin(Math.min(moveDeltaTime/stepTime,1)*Math.PI)*8*zoom;
   if (lanes[currentLane].type === "cow" || lanes[currentLane].type === "goat") {
 
     lanes[currentLane].animals.forEach((animal) => {
@@ -539,6 +549,7 @@ function animate(timestamp) {
         if (isCollide(chicken, animal)) {
             console.log("true");
             endDOM.style.visibility = "visible";
+            score.style.visibility = "visible";
         }
     });
   }
