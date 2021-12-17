@@ -5,8 +5,10 @@ import { RoughnessMipmapper } from "https://cdn.skypack.dev/three@0.134.0/exampl
 const canvas = document.querySelector("canvas.webgl");
 const counterDOM = document.getElementById("counter");
 const endDOM = document.getElementById("end");
-const score = document.getElementById("score")
+const score = document.getElementById("score");
 const scene = new THREE.Scene();
+
+const listener = new THREE.AudioListener();
 
 /**
  * Sizes
@@ -209,16 +211,16 @@ const initValues = () => {
   // chicken.rotation.x = 95*Math.PI/180;
   // chicken.rotation.y = 3*Math.PI/180;
   // chicken.rotation.z = -5*Math.PI/180;
-  if(firstTime){
-      chicken.scale.multiplyScalar(60);
-      firstTime = false;
+  if (firstTime) {
+    chicken.scale.multiplyScalar(60);
+    firstTime = false;
   }
   // chicken.scale.multiplyScalar(1/10);
   chicken.position.x = 0;
   chicken.position.y = 0;
   // chicken.position.x -= 10;
   // chicken.position.z += 22.5;
-//   console.log("player", chicken);
+  //   console.log("player", chicken);
   scene.add(chicken);
 
   currentLane = 0;
@@ -417,9 +419,8 @@ document.querySelector("#retry").addEventListener("click", () => {
 
 function onKeyDown(e) {
   if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40) {
-    
     const moveDeltaDistance = positionWidth * zoom;
-    
+
     switch (e.keyCode) {
       // left
       case 37: {
@@ -428,8 +429,8 @@ function onKeyDown(e) {
         chicken.rotation.y = (10 * Math.PI) / 180;
         chicken.rotation.z = (0 * Math.PI) / 180;
 
-        const finalPositions = {lane: currentLane, column: currentColumn - 1};
-        if((lanes[finalPositions.lane].type === 'tree' || lanes[finalPositions.lane].type === 'fence') && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column-1)) return;
+        const finalPositions = { lane: currentLane, column: currentColumn - 1 };
+        if ((lanes[finalPositions.lane].type === "tree" || lanes[finalPositions.lane].type === "fence") && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column - 1)) return;
         const positionX = (currentColumn * positionWidth + positionWidth / 2) * zoom - (boardWidth * zoom) / 2 - moveDeltaDistance;
 
         camera.position.x = initialCameraPositionX + positionX;
@@ -438,6 +439,14 @@ function onKeyDown(e) {
         chicken.rotation.x = (100 * Math.PI) / 180;
         chicken.rotation.y = (10 * Math.PI) / 180;
         chicken.rotation.z = (0 * Math.PI) / 180;
+        camera.add(listener);
+        const sound = new THREE.Audio(listener);
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load("/Asset/sound/jump.mp3", function (buffer) {
+          sound.setBuffer(buffer);
+          sound.setVolume(0.5);
+          sound.play();
+        });
         currentColumn--;
 
         break;
@@ -447,12 +456,20 @@ function onKeyDown(e) {
         chicken.rotation.x = (60 * Math.PI) / 180;
         chicken.rotation.y = (-85 * Math.PI) / 180;
         chicken.rotation.z = (-40 * Math.PI) / 180;
-        const finalPositions = {lane: currentLane + 1, column: currentColumn};
-        if((lanes[finalPositions.lane].type === 'tree' || lanes[finalPositions.lane].type === 'fence') && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column-1)) return;
+        const finalPositions = { lane: currentLane + 1, column: currentColumn };
+        if ((lanes[finalPositions.lane].type === "tree" || lanes[finalPositions.lane].type === "fence") && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column - 1)) return;
         const positionY = currentLane * positionWidth * zoom + moveDeltaDistance;
         camera.position.y = initialCameraPositionY + positionY;
         dirLight.position.y = initialDirLightPositionY + positionY;
         chicken.position.y = positionY; // initial chicken position is 0
+        camera.add(listener);
+        const sound = new THREE.Audio(listener);
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load("/Asset/sound/jump.mp3", function (buffer) {
+          sound.setBuffer(buffer);
+          sound.setVolume(0.5);
+          sound.play();
+        });
 
         currentLane++;
         addLane();
@@ -466,13 +483,20 @@ function onKeyDown(e) {
         chicken.rotation.y = (185 * Math.PI) / 180;
         chicken.rotation.z = (0 * Math.PI) / 180;
         if (currentColumn === columns - 1) break;
-        const finalPositions = {lane: currentLane, column: currentColumn + 1};
-        if((lanes[finalPositions.lane].type === 'tree' || lanes[finalPositions.lane].type === 'fence') && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column-1)) return;
+        const finalPositions = { lane: currentLane, column: currentColumn + 1 };
+        if ((lanes[finalPositions.lane].type === "tree" || lanes[finalPositions.lane].type === "fence") && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column - 1)) return;
         const positionX = (currentColumn * positionWidth + positionWidth / 2) * zoom - (boardWidth * zoom) / 2 + moveDeltaDistance;
         camera.position.x = initialCameraPositionX + positionX;
         dirLight.position.x = initialDirLightPositionX + positionX;
         chicken.position.x = positionX;
-        
+        camera.add(listener);
+        const sound = new THREE.Audio(listener);
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load("/Asset/sound/jump.mp3", function (buffer) {
+          sound.setBuffer(buffer);
+          sound.setVolume(0.5);
+          sound.play();
+        });
         currentColumn++;
         break;
       }
@@ -483,8 +507,8 @@ function onKeyDown(e) {
         chicken.rotation.y = (80 * Math.PI) / 180;
         chicken.rotation.z = (-10 * Math.PI) / 180;
         if (currentLane === 0) break;
-        const finalPositions = {lane: currentLane - 1, column: currentColumn};
-        if((lanes[finalPositions.lane].type === 'tree' || lanes[finalPositions.lane].type === 'fence') && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column-1)) return;
+        const finalPositions = { lane: currentLane - 1, column: currentColumn };
+        if ((lanes[finalPositions.lane].type === "tree" || lanes[finalPositions.lane].type === "fence") && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column - 1)) return;
         const positionY = currentLane * positionWidth * zoom - moveDeltaDistance;
         camera.position.y = initialCameraPositionY + positionY;
         dirLight.position.y = initialDirLightPositionY + positionY;
@@ -492,26 +516,34 @@ function onKeyDown(e) {
         // chicken.position.z = jumpDeltaDistance;
         currentLane--;
         counterDOM.innerHTML = currentLane;
+        camera.add(listener);
+        const sound = new THREE.Audio(listener);
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load("/Asset/sound/jump.mp3", function (buffer) {
+          sound.setBuffer(buffer);
+          sound.setVolume(0.5);
+          sound.play();
+        });
+
         break;
       }
     }
-    score.innerHTML ="your score : " + currentLane;
+    score.innerHTML = "your score : " + currentLane;
   }
 }
 
 window.addEventListener("keydown", onKeyDown, false);
 
 // Collision
-function isCollide(box1, box2){
-    if(box1 && box2){
-        var bbox1 = new THREE.Box3().setFromObject(box1);
-        var bbox2 = new THREE.Box3().setFromObject(box2);
-        return bbox1.intersectsBox(bbox2);
-    }
+function isCollide(box1, box2) {
+  if (box1 && box2) {
+    var bbox1 = new THREE.Box3().setFromObject(box1);
+    var bbox2 = new THREE.Box3().setFromObject(box2);
+    return bbox1.intersectsBox(bbox2);
+  }
 
-    return false;
+  return false;
 }
-
 
 function animate(timestamp) {
   requestAnimationFrame(animate);
@@ -541,16 +573,15 @@ function animate(timestamp) {
   // const moveDeltaTime = timestamp - stepStartTimestamp;
   // const jumpDeltaDistance = Math.sin(Math.min(moveDeltaTime/stepTime,1)*Math.PI)*8*zoom;
   if (lanes[currentLane].type === "cow" || lanes[currentLane].type === "goat") {
-
     lanes[currentLane].animals.forEach((animal) => {
-        animal.updateMatrix();
-        animal.updateMatrixWorld(true);
+      animal.updateMatrix();
+      animal.updateMatrixWorld(true);
 
-        if (isCollide(chicken, animal)) {
-            console.log("true");
-            endDOM.style.visibility = "visible";
-            score.style.visibility = "visible";
-        }
+      if (isCollide(chicken, animal)) {
+        console.log("true");
+        endDOM.style.visibility = "visible";
+        score.style.visibility = "visible";
+      }
     });
   }
 
