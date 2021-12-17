@@ -411,6 +411,7 @@ function Lane(index) {
 document.querySelector("#retry").addEventListener("click", () => {
   lanes.forEach((lane) => scene.remove(lane.mesh));
   initValues();
+  window.addEventListener("keydown", onKeyDown, false);
   endDOM.style.visibility = "hidden";
   score.style.visibility = "hidden";
 });
@@ -579,6 +580,7 @@ function animate(timestamp) {
 
       if (isCollide(chicken, animal)) {
         console.log("true");
+        window.removeEventListener("keydown", onKeyDown, false);
         endDOM.style.visibility = "visible";
         score.style.visibility = "visible";
       }
