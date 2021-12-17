@@ -8,7 +8,17 @@ const endDOM = document.getElementById("end");
 const score = document.getElementById("score");
 const scene = new THREE.Scene();
 
+var vol = document.getElementById("control");
+    vol.volume = 0.08;
+const mulai = document.getElementById("landing");
+
 const listener = new THREE.AudioListener();
+
+//start
+document.querySelector("#tombol").addEventListener("click", () => {
+  mulai.style.visibility = "hidden";
+  counterDOM.style.visibility = "visible"
+});
 
 /**
  * Sizes
@@ -562,7 +572,6 @@ function isCollide(box1, box2) {
 
 function animate(timestamp) {
   requestAnimationFrame(animate);
-
   if (!previousTimestamp) previousTimestamp = timestamp;
   const delta = timestamp - previousTimestamp;
   previousTimestamp = timestamp;
@@ -611,6 +620,7 @@ function animate(timestamp) {
         window.removeEventListener("keydown", onKeyDown, false);
         endDOM.style.visibility = "visible";
         score.style.visibility = "visible";
+        
       }
     });
   }
