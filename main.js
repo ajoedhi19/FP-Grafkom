@@ -63,7 +63,7 @@ let previousTimestamp;
 let startMoving = false;
 let moves = [];
 let stepStartTimestamp;
-// const stepTime = 200;
+const stepTime = 200;
 
 const generateLanes = () =>
   [-9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -156,6 +156,16 @@ for (let i = 0; i < objects.length; i++) {
       console.log("An error happened");
     }
   );
+}
+
+function play_sound(){
+  const sound = new THREE.Audio(listener);
+  const audioLoader = new THREE.AudioLoader();
+  audioLoader.load("/Asset/sound/jump.mp3", function (buffer) {
+    sound.setBuffer(buffer);
+    sound.setVolume(0.5);
+    sound.play();
+  });
 }
 
 function checkComplete() {
@@ -421,7 +431,8 @@ document.querySelector("#retry").addEventListener("click", () => {
 function onKeyDown(e) {
   if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40) {
     const moveDeltaDistance = positionWidth * zoom;
-
+    startMoving = true;
+    // console.log(startMoving);
     switch (e.keyCode) {
       // left
       case 37: {
@@ -429,7 +440,7 @@ function onKeyDown(e) {
         chicken.rotation.x = (100 * Math.PI) / 180;
         chicken.rotation.y = (10 * Math.PI) / 180;
         chicken.rotation.z = (0 * Math.PI) / 180;
-
+        play_sound();
         const finalPositions = { lane: currentLane, column: currentColumn - 1 };
         if ((lanes[finalPositions.lane].type === "tree" || lanes[finalPositions.lane].type === "fence") && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column - 1)) return;
         const positionX = (currentColumn * positionWidth + positionWidth / 2) * zoom - (boardWidth * zoom) / 2 - moveDeltaDistance;
@@ -441,13 +452,13 @@ function onKeyDown(e) {
         chicken.rotation.y = (10 * Math.PI) / 180;
         chicken.rotation.z = (0 * Math.PI) / 180;
         camera.add(listener);
-        const sound = new THREE.Audio(listener);
-        const audioLoader = new THREE.AudioLoader();
-        audioLoader.load("/Asset/sound/jump.mp3", function (buffer) {
-          sound.setBuffer(buffer);
-          sound.setVolume(0.5);
-          sound.play();
-        });
+        // const sound = new THREE.Audio(listener);
+        // const audioLoader = new THREE.AudioLoader();
+        // audioLoader.load("/Asset/sound/jump.mp3", function (buffer) {
+        //   sound.setBuffer(buffer);
+        //   sound.setVolume(0.5);
+        //   sound.play();
+        // });
         currentColumn--;
 
         break;
@@ -457,6 +468,7 @@ function onKeyDown(e) {
         chicken.rotation.x = (60 * Math.PI) / 180;
         chicken.rotation.y = (-85 * Math.PI) / 180;
         chicken.rotation.z = (-40 * Math.PI) / 180;
+        play_sound();
         const finalPositions = { lane: currentLane + 1, column: currentColumn };
         if ((lanes[finalPositions.lane].type === "tree" || lanes[finalPositions.lane].type === "fence") && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column - 1)) return;
         const positionY = currentLane * positionWidth * zoom + moveDeltaDistance;
@@ -464,13 +476,13 @@ function onKeyDown(e) {
         dirLight.position.y = initialDirLightPositionY + positionY;
         chicken.position.y = positionY; // initial chicken position is 0
         camera.add(listener);
-        const sound = new THREE.Audio(listener);
-        const audioLoader = new THREE.AudioLoader();
-        audioLoader.load("/Asset/sound/jump.mp3", function (buffer) {
-          sound.setBuffer(buffer);
-          sound.setVolume(0.5);
-          sound.play();
-        });
+        // const sound = new THREE.Audio(listener);
+        // const audioLoader = new THREE.AudioLoader();
+        // audioLoader.load("/Asset/sound/jump.mp3", function (buffer) {
+        //   sound.setBuffer(buffer);
+        //   sound.setVolume(0.5);
+        //   sound.play();
+        // });
 
         currentLane++;
         addLane();
@@ -483,6 +495,7 @@ function onKeyDown(e) {
         chicken.rotation.x = (100 * Math.PI) / 180;
         chicken.rotation.y = (185 * Math.PI) / 180;
         chicken.rotation.z = (0 * Math.PI) / 180;
+        play_sound();
         if (currentColumn === columns - 1) break;
         const finalPositions = { lane: currentLane, column: currentColumn + 1 };
         if ((lanes[finalPositions.lane].type === "tree" || lanes[finalPositions.lane].type === "fence") && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column - 1)) return;
@@ -491,13 +504,13 @@ function onKeyDown(e) {
         dirLight.position.x = initialDirLightPositionX + positionX;
         chicken.position.x = positionX;
         camera.add(listener);
-        const sound = new THREE.Audio(listener);
-        const audioLoader = new THREE.AudioLoader();
-        audioLoader.load("/Asset/sound/jump.mp3", function (buffer) {
-          sound.setBuffer(buffer);
-          sound.setVolume(0.5);
-          sound.play();
-        });
+        // const sound = new THREE.Audio(listener);
+        // const audioLoader = new THREE.AudioLoader();
+        // audioLoader.load("/Asset/sound/jump.mp3", function (buffer) {
+        //   sound.setBuffer(buffer);
+        //   sound.setVolume(0.5);
+        //   sound.play();
+        // });
         currentColumn++;
         break;
       }
@@ -507,6 +520,7 @@ function onKeyDown(e) {
         chicken.rotation.x = (100 * Math.PI) / 180;
         chicken.rotation.y = (80 * Math.PI) / 180;
         chicken.rotation.z = (-10 * Math.PI) / 180;
+        play_sound();
         if (currentLane === 0) break;
         const finalPositions = { lane: currentLane - 1, column: currentColumn };
         if ((lanes[finalPositions.lane].type === "tree" || lanes[finalPositions.lane].type === "fence") && lanes[finalPositions.lane].occupiedPositions.has(finalPositions.column - 1)) return;
@@ -518,13 +532,13 @@ function onKeyDown(e) {
         currentLane--;
         counterDOM.innerHTML = currentLane;
         camera.add(listener);
-        const sound = new THREE.Audio(listener);
-        const audioLoader = new THREE.AudioLoader();
-        audioLoader.load("/Asset/sound/jump.mp3", function (buffer) {
-          sound.setBuffer(buffer);
-          sound.setVolume(0.5);
-          sound.play();
-        });
+        // const sound = new THREE.Audio(listener);
+        // const audioLoader = new THREE.AudioLoader();
+        // audioLoader.load("/Asset/sound/jump.mp3", function (buffer) {
+        //   sound.setBuffer(buffer);
+        //   sound.setVolume(0.5);
+        //   sound.play();
+        // });
 
         break;
       }
@@ -569,7 +583,21 @@ function animate(timestamp) {
 
   if (startMoving) {
     stepStartTimestamp = timestamp;
+    // console.log(stepStartTimestamp, "in if startMoving");
     startMoving = false;
+  }
+
+  if(stepStartTimestamp) {
+    const moveDeltaTime = timestamp - stepStartTimestamp;
+    // console.log(stepStartTimestamp, "in if stepStartTimestamp");
+    const jumpDeltaDistance = Math.sin(Math.min(moveDeltaTime/stepTime,1)*Math.PI)*8*zoom;
+    // console.log(jumpDeltaDistance, "jump delta dist");
+    chicken.position.z = jumpDeltaDistance;
+
+    if(moveDeltaTime > stepTime) {
+      stepStartTimestamp = null;
+
+    }
   }
   // const moveDeltaTime = timestamp - stepStartTimestamp;
   // const jumpDeltaDistance = Math.sin(Math.min(moveDeltaTime/stepTime,1)*Math.PI)*8*zoom;
@@ -579,7 +607,7 @@ function animate(timestamp) {
       animal.updateMatrixWorld(true);
 
       if (isCollide(chicken, animal)) {
-        console.log("true");
+        // console.log("true");
         window.removeEventListener("keydown", onKeyDown, false);
         endDOM.style.visibility = "visible";
         score.style.visibility = "visible";
